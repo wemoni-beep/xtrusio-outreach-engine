@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Copy, Check, ExternalLink, X } from 'lucide-react';
+import { Copy } from 'lucide-react';
 
 const AI_LINKS = {
-  gemini: { label: 'Open Gemini', url: 'https://gemini.google.com/' },
-  grok: { label: 'Open Grok', url: 'https://grok.com/' },
-  claude: { label: 'Open Claude', url: 'https://claude.ai/' },
+  gemini: { label: 'Open Gemini', emoji: '✨', url: 'https://gemini.google.com/', hint: 'Paste the prompt in the chat window and press Send' },
+  grok: { label: 'Open Grok', emoji: '🤖', url: 'https://grok.com/', hint: 'Paste the prompt in the chat window and press Send' },
+  claude: { label: 'Open Claude', emoji: '🚀', url: 'https://claude.ai/', hint: 'Paste the prompt in the chat window and press Send' },
 };
 
 export default function CopyButton({ text, label = 'Copy Prompt', className = '', aiTarget = null }) {
@@ -51,33 +51,53 @@ export default function CopyButton({ text, label = 'Copy Prompt', className = ''
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 text-center" onClick={e => e.stopPropagation()}>
-            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-              <Check size={28} className="text-green-600" />
-            </div>
-            <h3 className="text-lg font-bold mb-1">Prompt Copied!</h3>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
+          <div
+            className="bg-white rounded-2xl w-full max-w-sm p-8 text-center shadow-xl"
+            onClick={e => e.stopPropagation()}
+            style={{ animation: 'fadeInUp 0.2s ease-out' }}
+          >
+            {/* Big emoji checkmark */}
+            <div className="text-5xl mb-4">✅</div>
+
+            <h3 className="text-xl font-bold mb-2">Prompt Copied!</h3>
+
             <p className="text-sm text-text-muted mb-6">
-              The prompt is in your clipboard. {ai ? `Open ${ai.label.replace('Open ', '')} and paste it (Ctrl+V / Cmd+V).` : 'Paste it in your preferred AI tool.'}
+              {ai
+                ? `Click the button below to open ${ai.label.replace('Open ', '')}, then paste (Ctrl+V) and hit Send.`
+                : 'Paste it in your preferred AI tool.'}
             </p>
-            <div className="flex gap-3 justify-center">
-              {ai && (
-                <button
-                  onClick={handleOpenAI}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[10px] font-semibold text-sm bg-primary text-white hover:bg-primary-hover transition-all duration-200"
-                >
-                  <ExternalLink size={16} />
-                  {ai.label}
-                </button>
-              )}
+
+            {/* Open AI button */}
+            {ai && (
               <button
-                onClick={() => setShowModal(false)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[10px] font-semibold text-sm bg-surface-tertiary text-text-secondary hover:bg-gray-200 transition-all duration-200"
+                onClick={handleOpenAI}
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-base bg-primary text-white hover:bg-primary-hover transition-all duration-200 mb-3"
               >
-                {ai ? 'Close' : 'Got it'}
+                <span>{ai.emoji}</span> {ai.label}
               </button>
-            </div>
+            )}
+
+            {/* Helper text */}
+            {ai && (
+              <p className="text-xs text-text-muted mb-4">{ai.hint}</p>
+            )}
+
+            {/* Close */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="px-5 py-2 rounded-xl font-medium text-sm bg-surface-tertiary text-text-muted hover:bg-gray-200 transition-all duration-200"
+            >
+              Close
+            </button>
           </div>
+
+          <style>{`
+            @keyframes fadeInUp {
+              from { opacity: 0; transform: translateY(12px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
         </div>
       )}
     </>
