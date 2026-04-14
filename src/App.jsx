@@ -41,7 +41,7 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/xtrusio-outreach-engine">
       <Routes>
         <Route element={<Layout onDataChange={refresh} />}>
           <Route
