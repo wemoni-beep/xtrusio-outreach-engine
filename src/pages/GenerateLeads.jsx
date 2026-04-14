@@ -55,9 +55,9 @@ export default function GenerateLeads({ campaign, onUpdateCampaign }) {
           <div className="flex-1">
             <h3 className="font-semibold mb-1">1. Copy the Lead Generation Prompt</h3>
             <p className="text-sm text-text-muted mb-4">
-              Click below to copy the prompt, then paste it into ChatGPT, Gemini, or any AI with web search.
+              Click below to copy the prompt, then paste it into <strong>Gemini</strong> (recommended — has live web search).
             </p>
-            <CopyButton text={LEAD_GEN_PROMPT} label="Copy Lead Gen Prompt" />
+            <CopyButton text={LEAD_GEN_PROMPT} label="Copy Prompt for Gemini" />
           </div>
         </div>
       </div>
