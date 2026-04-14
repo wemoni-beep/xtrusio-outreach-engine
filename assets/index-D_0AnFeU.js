@@ -47,26 +47,37 @@ Provide a single Markdown table with the following 10 columns:
 * Provide precise, definitive answers.
 * Zero fluff.
 * No introductory filler.
-* Use standard text for units/numbers (e.g., $20M).`;function Xr(e){return`I need you to find the LinkedIn profile URLs and professional email addresses for the following people. Use your web search capabilities to find accurate, current information.
+* Use standard text for units/numbers (e.g., $20M).`;function Xr(e){return`You are an elite B2B Lead Generation Researcher and Technical SEO Strategist. Your goal is to identify high-value sales targets from the last 48 hours of global funding news and immediately construct a "Mirror Pitch" SEO framework for each.
 
-For each person, provide:
-1. Their full LinkedIn profile URL
-2. Their professional/work email address (if findable)
-3. Their personal LinkedIn headline/title
+**Step 1: The Live Search Phase (Strict Filtering)**
+Identify companies that meet these exact criteria. Do not hallucinate; if only 5 exist, provide 5.
+1. **Announcement Window:** Within the strictly preceding 24-48 hours.
+2. **Funding Amount:** $20M-$50M USD (Series A or B preferred).
+3. **Company Size:** 50 to 1,000 employees.
+4. **Industries:** B2B SaaS, FinTech, HealthTech, CyberSecurity, AI Infra, or Hard Tech.
+5. **Sources:** TechCrunch, PR Newswire, VentureBeat, and official VC portfolios.
 
-**People to research:**
-${e.map((e,t)=>`${t+1}. ${e.decisionMaker||`Decision Maker`} at ${e.company} (${e.industry})`).join(`
+**Step 2: The "Mirror Pitch" SEO Logic**
+For every lead identified, you must engineer a "Mirror Pitch." This is a strategy where we rank for a problem the lead solves, positioning ourselves as the authority that recommends them (while capturing the lead's potential customers).
+
+**Step 3: Find LinkedIn Profiles & Contact Info**
+For the following people from my lead pipeline, find their actual LinkedIn profile URLs and professional email addresses using your web search capabilities:
+
+${e.map((e,t)=>`${t+1}. ${e.decisionMaker||`Decision Maker`} at ${e.company} (${e.industry}) — ${e.signal||`Recently funded`}`).join(`
 `)}
 
-**Output Format:**
+**Step 4: Output Generation (Unified Table)**
 Present results in a Markdown table with these columns:
 | # | Company | Decision Maker | LinkedIn URL | Email | LinkedIn Headline |
 
-**Important:**
-- Only provide URLs you are confident are correct
-- If you cannot find a LinkedIn profile, write "Not Found"
-- If you cannot find an email, write "Not Found"
-- Do not guess or hallucinate URLs`}function Zr(e){return`**Role:**
+**Formatting & Tone:**
+* Provide precise, definitive answers.
+* Zero fluff.
+* No introductory filler.
+* Only provide URLs you are confident are correct.
+* If you cannot find a LinkedIn profile, write "Not Found".
+* If you cannot find an email, write "Not Found".
+* Do not guess or hallucinate URLs.`}function Zr(e){return`**Role:**
 You are a Senior Technical Content Strategist specializing in Bottom-of-Funnel (BOFU) search intent for B2B Enterprise audiences. Your task is to write a high-authority, "Vendor-Agnostic" industry guide based on a specific "Mirror Pitch" keyword.
 
 **Input Data:**
