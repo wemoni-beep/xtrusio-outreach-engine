@@ -55,9 +55,9 @@ export default function GenerateLeads({ campaign, onUpdateCampaign }) {
           <div className="flex-1">
             <h3 className="font-semibold mb-1">1. Copy the Lead Generation Prompt</h3>
             <p className="text-sm text-text-muted mb-4">
-              Click below to copy the prompt, then paste it into <strong>Grok</strong> (recommended — has live web search for funding news).
+              Click below to copy the prompt, then paste it into <strong>Gemini</strong> to find recently funded companies.
             </p>
-            <CopyButton text={LEAD_GEN_PROMPT} label="Copy Prompt for Grok" aiTarget="grok" />
+            <CopyButton text={LEAD_GEN_PROMPT} label="Copy Lead Gen Prompt" aiTarget="gemini" />
           </div>
         </div>
       </div>

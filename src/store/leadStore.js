@@ -60,50 +60,97 @@ export function deleteCampaign(id) {
 
 export function parseLeadsFromText(text) {
   // Parse unified 10-column markdown table into lead objects
+  // Handles various AI output formats (Gemini, Grok, etc.)
   // Columns: # | Company Name (Industry) | Size / Funding Signal | Decision Maker | Quality Score |
   //          Mirror Keyword | Article Title | Search Intent | Conversion Hook | Technical Pivot
+
   const lines = text.trim().split('\n');
   const leads = [];
 
+  // Find table rows — lines containing | separators
+  const tableLines = [];
+  let headerFound = false;
+
   for (const line of lines) {
-    // Skip header lines and separators
-    if (line.startsWith('|') && line.includes('---')) continue;
-    if (line.startsWith('| #') || line.startsWith('| **#')) continue;
+    const trimmed = line.trim();
+    if (!trimmed) continue;
 
-    if (line.startsWith('|')) {
-      const cells = line.split('|').filter(c => c.trim()).map(c => c.trim().replace(/\*\*/g, ''));
-      if (cells.length >= 5) {
-        // Parse "Company Name (Industry)" from column 2
-        const companyMatch = (cells[1] || '').match(/^(.+?)\s*\((.+?)\)\s*$/);
-        const company = companyMatch ? companyMatch[1].trim() : (cells[1] || '');
-        const industry = companyMatch ? companyMatch[2].trim() : '';
-
-        leads.push({
-          id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
-          number: cells[0] || '',
-          company,
-          industry,
-          signal: cells[2] || '',        // Size / Funding Signal
-          decisionMaker: cells[3] || '',  // Likely Decision Maker
-          qualityScore: cells[4] || '',   // Quality Score
-          // SEO fields from unified table
-          mirrorKeyword: cells[5] || '',  // Mirror Long-Tail Keyword
-          articleTitle: cells[6] || '',   // Target Article Title
-          searchIntent: cells[7] || '',   // Search Intent (Buyer Pain)
-          conversionHook: cells[8] || '', // Primary Conversion Hook
-          technicalPivot: cells[9] || '', // Secondary Technical Pivot
-          // Enrichment fields
-          linkedinUrl: '',
-          email: '',
-          personalLinkedin: '',
-          // Outreach fields
-          outreachMessage: '',
-          status: 'new', // new | invite_sent | accepted | replied | converted
-          notes: '',
-        });
+    // Check if line contains pipe characters (table row)
+    if (trimmed.includes('|')) {
+      // Skip separator lines (----, :---, etc.)
+      const withoutPipes = trimmed.replace(/\|/g, '').trim();
+      if (/^[-:\s]+$/.test(withoutPipes)) {
+        headerFound = true; // separator means header was just above
+        continue;
       }
+
+      // Skip header row (contains column names like "#", "Company", "Quality Score", etc.)
+      const lower = trimmed.toLowerCase();
+      if (
+        (lower.includes('company') && lower.includes('score')) ||
+        (lower.includes('#') && lower.includes('industry') && lower.includes('keyword')) ||
+        (lower.includes('funding') && lower.includes('decision')) ||
+        (lower.includes('company name') && lower.includes('mirror'))
+      ) {
+        headerFound = true;
+        continue;
+      }
+
+      // This looks like a data row
+      tableLines.push(trimmed);
     }
   }
+
+  for (const line of tableLines) {
+    // Split by | and clean up
+    const rawCells = line.split('|');
+    // Filter out empty strings from leading/trailing pipes
+    const cells = rawCells
+      .map(c => c.trim().replace(/\*\*/g, '').replace(/^\*|\*$/g, '').trim())
+      .filter(c => c !== '');
+
+    if (cells.length < 5) continue;
+
+    // Try to detect if first cell is just a row number
+    const firstIsNumber = /^\d+\.?$/.test(cells[0].trim());
+    const offset = firstIsNumber ? 0 : 0;
+
+    // Parse "Company Name (Industry)" — could be in various formats
+    const companyRaw = cells[1] || cells[0] || '';
+    const companyMatch = companyRaw.match(/^(.+?)\s*\((.+?)\)\s*$/);
+    const company = companyMatch ? companyMatch[1].trim() : companyRaw.trim();
+    const industry = companyMatch ? companyMatch[2].trim() : '';
+
+    // Build lead object — be flexible with column count
+    const lead = {
+      id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
+      number: cells[0] || '',
+      company,
+      industry,
+      signal: cells[2] || '',
+      decisionMaker: cells[3] || '',
+      qualityScore: cells[4] || '',
+      mirrorKeyword: cells[5] || '',
+      articleTitle: cells[6] || '',
+      searchIntent: cells[7] || '',
+      conversionHook: cells[8] || '',
+      technicalPivot: cells[9] || '',
+      // Enrichment fields
+      linkedinUrl: '',
+      email: '',
+      personalLinkedin: '',
+      // Outreach fields
+      outreachMessage: '',
+      status: 'new',
+      notes: '',
+    };
+
+    // Only add if we got a valid company name
+    if (lead.company && lead.company !== '#' && lead.company !== 'N/A') {
+      leads.push(lead);
+    }
+  }
+
   return leads;
 }
 

@@ -60,37 +60,29 @@ Present results in a Markdown table with these columns:
 
 export function getArticlePrompt(lead) {
   return `**Role:**
-You are a Lead Solutions Architect and Technical Content Strategist. Your objective is to produce a 1,500-word Bottom-of-Funnel (BOFU) industry whitepaper designed to rank for high-intent technical queries and convert via the "Mirror Pitch" method.
+You are a Senior Technical Content Strategist specializing in Bottom-of-Funnel (BOFU) search intent for B2B Enterprise audiences. Your task is to write a high-authority, "Vendor-Agnostic" industry guide based on a specific "Mirror Pitch" keyword.
 
-**Contextual Inputs:**
-- **Target Keyword:** ${lead.mirrorKeyword || '[KEYWORD]'}
-- **Target Company Logic:** ${lead.company} - Internal Note: Do not mention this name in the article prose.
-- **Primary Conversion Hook:** ${lead.conversionHook || '[CONVERSION HOOK]'}
-- **Secondary Technical Pivot:** ${lead.technicalPivot || '[TECHNICAL PIVOT]'}
+**Input Data:**
+* **Target Keyword:** ${lead.mirrorKeyword || '[KEYWORD]'}
+* **Target Article Title:** ${lead.articleTitle || '[TITLE]'}
+* **Search Intent / Pain Point:** ${lead.searchIntent || '[DESCRIBE THE PAIN]'}
+* **Target Company (The Lead):** ${lead.company} — Internal Note: Do not mention this name in the article prose.
+* **Primary Conversion Hook:** ${lead.conversionHook || '[CONVERSION HOOK]'}
+* **Secondary Technical Pivot:** ${lead.technicalPivot || '[TECHNICAL PIVOT]'}
 
-**Strict Content Directives:**
+**Article Structure & Rules:**
+1. **The "Executive Summary" (TL;DR):** Open with 3 bullet points summarizing the current 2026 landscape of this specific problem. Use zero fluff.
+2. **Problem Anatomy:** Devote 300 words to the "Secondary Technical Pivot." Explain why legacy solutions fail at this specific bottleneck (e.g., "Why traditional API gateways throttle multi-agent AI loops").
+3. **The "Checklist for Success":** Provide a 5-point technical framework for solving this problem. This framework must align perfectly with the **Target Company's** unique features, without mentioning the company by name.
+4. **The Vendor Comparison Table:** Create a Markdown table comparing 3 "Archetypes" of solutions (e.g., "Legacy Giants," "DIY/Open Source," and "Modern Agentic Platforms").
+    * *Strategic Note:* Ensure the "Modern" category (which represents the Target Company) is the clear winner for high-growth scenarios.
+5. **The Conversion Bridge:** Insert a prominent call-to-action for the **Primary Conversion Hook**.
+6. **Tone & Style:**
+    * **Persona:** Write as a Lead Architect or CISO for an Enterprise firm.
+    * **Constraints:** No "In today's fast-paced world." Use precise industry terminology.
+    * **Length:** Aim for 1,200+ words of dense, high-utility value.
 
-1. **The "No-Fluff" Opening:** Start immediately with a "State of the Stack 2026" summary. No "In the digital age" intros. Use 3 data-heavy bullet points regarding current industry failure rates or cost-per-error metrics.
-
-2. **Deep-Dive Technical Bottleneck:** Dedicate a section to the Secondary Technical Pivot. Use a sub-heading that identifies a specific pain point (e.g., "The Latency Tax of Multi-Region Vector Sync"). Explain the physics or logic of why this breaks at scale.
-
-3. **The "Implementation Framework":** Present a 5-step workflow. Use Markdown Bold for key terms. This framework must describe the category of solution offered by the Target Company as the gold standard.
-
-4. **Strategic Trade-offs Section:** To build 100% authority, include a section titled "When [Category X] is Overkill." Explain where the legacy or DIY approach is actually better. This "honest" pivot makes the recommendation for the modern solution 10x more persuasive.
-
-5. **Comparative Analysis Table:**
-   - Column 1: Feature/Requirement.
-   - Column 2: Legacy/Incumbent Approach (The "Before").
-   - Column 3: The Modern Agentic/AI-Native Approach (The "Mirror").
-
-6. **Conversion Engineering:** Place the Primary Conversion Hook in a blockquote or "Pro-Tip" box 60% of the way through the article. Ensure the value proposition of the hook is "Zero-friction implementation."
-
-**Tone & Voice Guidelines:**
-- **Audience:** CISO, CTO, VP of Engineering.
-- **Vocabulary:** Use words like interoperability, latency, technical debt, orchestration, and parity.
-- **Formatting:** Use ## and ### headers. Use bulleted lists for all technical requirements.
-
-If the output is too "bloggy," rewrite as a technical documentation architect speaking to a peer who has 15 years of experience and no time for marketing jargon.`;
+If the output is too "bloggy," rewrite this as a technical documentation architect speaking to a peer who has 15 years of experience and no time for marketing jargon.`;
 }
 
 export function getArticleToHtmlPrompt(lead) {
