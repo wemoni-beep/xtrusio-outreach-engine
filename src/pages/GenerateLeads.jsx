@@ -57,7 +57,7 @@ export default function GenerateLeads({ campaign, onUpdateCampaign }) {
             <p className="text-sm text-text-muted mb-4">
               Click below to copy the prompt, then paste it into <strong>Gemini</strong> (recommended — has live web search).
             </p>
-            <CopyButton text={LEAD_GEN_PROMPT} label="Copy Prompt for Gemini" />
+            <CopyButton text={LEAD_GEN_PROMPT} label="Copy Prompt for Gemini" aiTarget="gemini" />
           </div>
         </div>
       </div>

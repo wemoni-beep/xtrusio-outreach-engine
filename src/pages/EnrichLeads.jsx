@@ -72,7 +72,7 @@ export default function EnrichLeads({ campaign, onUpdateCampaign }) {
               Copy this prompt and paste it into <strong>Grok</strong> (best for finding LinkedIn profiles).
               The prompt includes all {campaign.leads.length} leads from your pipeline.
             </p>
-            <CopyButton text={enrichmentPrompt} label="Copy Enrichment Prompt for Grok" />
+            <CopyButton text={enrichmentPrompt} label="Copy Enrichment Prompt for Grok" aiTarget="grok" />
           </div>
         </div>
       </div>

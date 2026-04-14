@@ -214,6 +214,7 @@ export default function Articles({ campaign, onUpdateCampaign }) {
                       : getArticleToHtmlPrompt(activeLead)
                   }
                   label={activeStep === 'article' ? 'Copy Article Prompt' : 'Copy HTML Prompt'}
+                  aiTarget={activeStep === 'article' ? 'gemini' : 'claude'}
                 />
               </div>
 

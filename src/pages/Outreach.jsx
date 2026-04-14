@@ -246,6 +246,7 @@ export default function Outreach({ campaign, onUpdateCampaign }) {
                     <CopyButton
                       text={getOutreachMessagePrompt(lead)}
                       label="Copy Message Prompt"
+                      aiTarget="claude"
                       className="!text-xs !px-3 !py-1.5"
                     />
                     <button
