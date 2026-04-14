@@ -60,68 +60,111 @@ export function deleteCampaign(id) {
 
 export function parseLeadsFromText(text) {
   // Parse unified 10-column markdown table into lead objects
-  // Handles various AI output formats (Gemini, Grok, etc.)
-  // Columns: # | Company Name (Industry) | Size / Funding Signal | Decision Maker | Quality Score |
-  //          Mirror Keyword | Article Title | Search Intent | Conversion Hook | Technical Pivot
+  // Handles various AI output formats: Gemini, Grok, ChatGPT, etc.
+  // Supports: code blocks, bold markers, wrapped text, various table styles
 
-  const lines = text.trim().split('\n');
+  // Step 1: Strip markdown code block fences if present
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^```(?:markdown|md|text)?\s*\n?/i, '');
+  cleaned = cleaned.replace(/\n?```\s*$/i, '');
+  cleaned = cleaned.trim();
+
+  const lines = cleaned.split('\n');
   const leads = [];
 
-  // Find table rows — lines containing | separators
-  const tableLines = [];
-  let headerFound = false;
-
+  // Step 2: Find all pipe-delimited table lines
+  const allTableLines = [];
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
-
-    // Check if line contains pipe characters (table row)
-    if (trimmed.includes('|')) {
-      // Skip separator lines (----, :---, etc.)
-      const withoutPipes = trimmed.replace(/\|/g, '').trim();
-      if (/^[-:\s]+$/.test(withoutPipes)) {
-        headerFound = true; // separator means header was just above
-        continue;
-      }
-
-      // Skip header row (contains column names like "#", "Company", "Quality Score", etc.)
-      const lower = trimmed.toLowerCase();
-      if (
-        (lower.includes('company') && lower.includes('score')) ||
-        (lower.includes('#') && lower.includes('industry') && lower.includes('keyword')) ||
-        (lower.includes('funding') && lower.includes('decision')) ||
-        (lower.includes('company name') && lower.includes('mirror'))
-      ) {
-        headerFound = true;
-        continue;
-      }
-
-      // This looks like a data row
-      tableLines.push(trimmed);
+    // Must contain at least 2 pipe characters to be a table row
+    if ((trimmed.match(/\|/g) || []).length >= 2) {
+      allTableLines.push(trimmed);
     }
   }
 
-  for (const line of tableLines) {
-    // Split by | and clean up
+  if (allTableLines.length === 0) return leads;
+
+  // Step 3: Separate header, separator, and data rows
+  const dataRows = [];
+  let pastHeader = false;
+
+  for (const line of allTableLines) {
+    // Check if this is a separator line (---|---|--- or :---:|:---:)
+    const withoutPipes = line.replace(/\|/g, '').trim();
+    if (/^[-:\s]+$/.test(withoutPipes)) {
+      pastHeader = true;
+      continue;
+    }
+
+    // Check if this is a header row
+    const lower = line.toLowerCase().replace(/\*\*/g, '');
+    if (
+      (lower.includes('#') && (lower.includes('company') || lower.includes('industry'))) ||
+      (lower.includes('decision maker') || lower.includes('quality score')) ||
+      (lower.includes('mirror') && lower.includes('keyword')) ||
+      (lower.includes('funding') && lower.includes('signal')) ||
+      (lower.includes('conversion') && lower.includes('hook')) ||
+      (lower.includes('search intent') && lower.includes('pivot'))
+    ) {
+      pastHeader = true;
+      continue;
+    }
+
+    // If we haven't seen a separator yet and this is the first row,
+    // it might be a header without a separator — check if next line is separator
+    if (!pastHeader && dataRows.length === 0) {
+      // Peek: if this looks like it starts with "#" or "No." header text, skip
+      const firstCell = line.split('|').filter(c => c.trim())[0]?.trim().toLowerCase() || '';
+      if (firstCell === '#' || firstCell === 'no.' || firstCell === 'no' || firstCell === 's.no') {
+        pastHeader = true;
+        continue;
+      }
+    }
+
+    dataRows.push(line);
+  }
+
+  // Step 4: Parse each data row
+  for (const line of dataRows) {
     const rawCells = line.split('|');
-    // Filter out empty strings from leading/trailing pipes
     const cells = rawCells
-      .map(c => c.trim().replace(/\*\*/g, '').replace(/^\*|\*$/g, '').trim())
+      .map(c => c.trim()
+        .replace(/\*\*/g, '')      // Remove bold markers **text**
+        .replace(/^\*|\*$/g, '')   // Remove italic markers *text*
+        .replace(/^`|`$/g, '')     // Remove inline code markers
+        .replace(/^\[|\]$/g, '')   // Remove bracket wrappers
+        .trim()
+      )
       .filter(c => c !== '');
 
+    // Need at least 5 cells for a valid lead row
     if (cells.length < 5) continue;
 
-    // Try to detect if first cell is just a row number
-    const firstIsNumber = /^\d+\.?$/.test(cells[0].trim());
-    const offset = firstIsNumber ? 0 : 0;
+    // Skip if first cell doesn't look like a row number
+    const firstCell = cells[0].trim();
+    if (!/^\d+\.?$/.test(firstCell) && cells.length < 7) continue;
 
-    // Parse "Company Name (Industry)" — could be in various formats
-    const companyRaw = cells[1] || cells[0] || '';
-    const companyMatch = companyRaw.match(/^(.+?)\s*\((.+?)\)\s*$/);
-    const company = companyMatch ? companyMatch[1].trim() : companyRaw.trim();
-    const industry = companyMatch ? companyMatch[2].trim() : '';
+    // Parse "Company Name (Industry)" — handles various formats:
+    // "Acme (SaaS)", "Acme Inc. (FinTech)", "Acme - SaaS", etc.
+    const companyRaw = cells[1] || '';
+    let company = companyRaw;
+    let industry = '';
 
-    // Build lead object — be flexible with column count
+    // Try parentheses format: "Company (Industry)"
+    const parenMatch = companyRaw.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+    if (parenMatch) {
+      company = parenMatch[1].trim();
+      industry = parenMatch[2].trim();
+    } else {
+      // Try dash format: "Company - Industry"
+      const dashMatch = companyRaw.match(/^(.+?)\s*[-–—]\s*(.+)$/);
+      if (dashMatch) {
+        company = dashMatch[1].trim();
+        industry = dashMatch[2].trim();
+      }
+    }
+
     const lead = {
       id: Date.now().toString() + Math.random().toString(36).slice(2, 7),
       number: cells[0] || '',
@@ -145,8 +188,14 @@ export function parseLeadsFromText(text) {
       notes: '',
     };
 
-    // Only add if we got a valid company name
-    if (lead.company && lead.company !== '#' && lead.company !== 'N/A') {
+    // Only add if we got a valid company name (not a header fragment)
+    if (
+      lead.company &&
+      lead.company !== '#' &&
+      lead.company !== 'N/A' &&
+      lead.company.toLowerCase() !== 'company name' &&
+      lead.company.toLowerCase() !== 'company'
+    ) {
       leads.push(lead);
     }
   }

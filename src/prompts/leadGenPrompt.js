@@ -30,7 +30,8 @@ Provide a single Markdown table with the following 10 columns:
 * Provide precise, definitive answers.
 * Zero fluff.
 * No introductory filler.
-* Use standard text for units/numbers (e.g., $20M).`;
+* Use standard text for units/numbers (e.g., $20M).
+* **CRITICAL: Output the table inside a markdown code block (triple backticks). Use standard pipe-delimited markdown table format with | separators. Do NOT use any other table format. Each row must be on a single line.**`;
 
 export function getEnrichmentPrompt(leads) {
   const leadList = leads.map((l, i) =>
