@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, FileText, FileSearch, GitCompare, Code, ExternalLink, X, CheckCircle2, Globe, Download } from 'lucide-react';
+import { ArrowRight, FileText, FileSearch, GitCompare, ExternalLink, X, CheckCircle2, Globe, Download, Upload, Package, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import CopyButton from '../components/CopyButton';
 import StageIndicator from '../components/StageIndicator';
 import { getPrompt } from '../store/promptStore';
 import { renderAuditHtml, renderArticleHtml, renderComparisonHtml } from '../lib/htmlTemplates';
+import { loadPublishConfig, publishToGithub, downloadCampaignZip, urlForContent } from '../lib/publisher';
 
 /**
  * ContentFactory — the core engine. For each lead, run 3 workflows:
@@ -63,6 +64,8 @@ export default function ContentFactory({ campaign, onUpdateCampaign }) {
   const [activeWf, setActiveWf] = useState(null);
   const [pasteText, setPasteText] = useState('');
   const [previewHtml, setPreviewHtml] = useState(null);
+  const [publishingKey, setPublishingKey] = useState(null); // `${leadId}-${wfId}` while publishing
+  const [zipping, setZipping] = useState(false);
 
   if (!campaign) {
     return (
@@ -155,6 +158,40 @@ export default function ContentFactory({ campaign, onUpdateCampaign }) {
     URL.revokeObjectURL(url);
   };
 
+  const handlePublish = async (lead, wf) => {
+    const config = loadPublishConfig();
+    if (config.provider !== 'github' || !config.token || !config.owner || !config.repo) {
+      alert('GitHub not configured. Go to Publish Settings to set up your repo + token.');
+      return;
+    }
+    const key = `${lead.id}-${wf.id}`;
+    setPublishingKey(key);
+    try {
+      const url = await publishToGithub(lead, wf.id, config);
+      const updatedLeads = campaign.leads.map(l =>
+        l.id === lead.id ? { ...l, [wf.urlField]: url } : l
+      );
+      onUpdateCampaign(campaign.id, { leads: updatedLeads });
+      alert(`Published! Live at ${url}\n\n(Cloudflare may take 30-60s to rebuild.)`);
+    } catch (e) {
+      alert(`Publish failed: ${e.message}`);
+    } finally {
+      setPublishingKey(null);
+    }
+  };
+
+  const handleDownloadZip = async () => {
+    setZipping(true);
+    try {
+      const count = await downloadCampaignZip(campaign);
+      alert(`Downloaded ${count} HTML files as ZIP.`);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setZipping(false);
+    }
+  };
+
   const handleAdvance = () => {
     onUpdateCampaign(campaign.id, { stage: 'outreach' });
     navigate('/outreach');
@@ -198,11 +235,22 @@ export default function ContentFactory({ campaign, onUpdateCampaign }) {
         })}
       </div>
 
-      {/* Instructions */}
-      <div className="bg-white rounded-xl border border-border p-5 text-sm text-text-secondary">
-        <strong className="text-text">How this works:</strong> For each lead below, click the button for each content type.
-        You'll get a prompt pre-filled with the lead's data → paste it into the AI → paste the output back.
-        HTML is auto-generated. Preview, download, or publish to your site.
+      {/* Instructions + batch actions */}
+      <div className="bg-white rounded-xl border border-border p-5 flex items-start justify-between gap-4">
+        <div className="text-sm text-text-secondary flex-1">
+          <strong className="text-text">How this works:</strong> For each lead below, click the button for each content type.
+          You'll get a prompt pre-filled with the lead's data → paste it into the AI → paste the output back.
+          HTML is auto-generated. Preview, download, or publish to your site.
+        </div>
+        <button
+          onClick={handleDownloadZip}
+          disabled={zipping}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm bg-surface-alt border border-border text-text hover:bg-surface-tertiary disabled:opacity-40 transition-colors shrink-0"
+          title="Download all HTMLs as a ZIP (for manual upload)"
+        >
+          {zipping ? <Loader2 size={14} className="animate-spin" /> : <Package size={14} />}
+          Download All (ZIP)
+        </button>
       </div>
 
       {/* Lead rows */}
@@ -283,6 +331,31 @@ export default function ContentFactory({ campaign, onUpdateCampaign }) {
                           >
                             <Download size={10} />
                           </button>
+                          {published ? (
+                            <a
+                              href={lead[wf.urlField]}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Open published URL"
+                              className="text-xs px-2 py-1 rounded-md font-medium bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors inline-flex items-center gap-1"
+                            >
+                              <Globe size={10} /> Live
+                            </a>
+                          ) : (
+                            <button
+                              onClick={() => handlePublish(lead, wf)}
+                              disabled={publishingKey === `${lead.id}-${wf.id}`}
+                              title="Publish to your site"
+                              className="text-xs px-2 py-1 rounded-md font-medium bg-primary text-white hover:bg-primary-hover disabled:opacity-60 transition-colors inline-flex items-center gap-1"
+                            >
+                              {publishingKey === `${lead.id}-${wf.id}` ? (
+                                <Loader2 size={10} className="animate-spin" />
+                              ) : (
+                                <Upload size={10} />
+                              )}
+                              Publish
+                            </button>
+                          )}
                         </>
                       )}
                     </div>

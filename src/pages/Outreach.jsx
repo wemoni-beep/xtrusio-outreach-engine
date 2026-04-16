@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Copy, Check, ExternalLink } from 'lucide-react';
+import { MessageSquare, Copy, Check, ExternalLink, FileSearch, FileText, GitCompare } from 'lucide-react';
 import { useState } from 'react';
 import CopyButton from '../components/CopyButton';
 import PasteArea from '../components/PasteArea';
@@ -197,6 +197,30 @@ export default function Outreach({ campaign, onUpdateCampaign }) {
                   <a href={lead.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1 mb-2">
                     <ExternalLink size={12} /> Open LinkedIn Profile
                   </a>
+                )}
+
+                {/* Published content badges */}
+                {(lead.auditUrl || lead.articleUrl || lead.comparisonUrl) && (
+                  <div className="flex flex-wrap gap-1.5 mb-2 mt-1">
+                    {lead.auditUrl && (
+                      <a href={lead.auditUrl} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors">
+                        <FileSearch size={10} /> Audit Live
+                      </a>
+                    )}
+                    {lead.articleUrl && (
+                      <a href={lead.articleUrl} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors">
+                        <FileText size={10} /> Article Live
+                      </a>
+                    )}
+                    {lead.comparisonUrl && (
+                      <a href={lead.comparisonUrl} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                        <GitCompare size={10} /> Comparison Live
+                      </a>
+                    )}
+                  </div>
                 )}
 
                 {/* Message area */}
