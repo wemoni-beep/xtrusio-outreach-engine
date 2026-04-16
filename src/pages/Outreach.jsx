@@ -4,7 +4,7 @@ import { useState } from 'react';
 import CopyButton from '../components/CopyButton';
 import PasteArea from '../components/PasteArea';
 import StageIndicator from '../components/StageIndicator';
-import { getOutreachMessagePrompt } from '../prompts/leadGenPrompt';
+import { getPrompt } from '../store/promptStore';
 
 export default function Outreach({ campaign, onUpdateCampaign }) {
   const navigate = useNavigate();
@@ -244,7 +244,17 @@ export default function Outreach({ campaign, onUpdateCampaign }) {
                 ) : (
                   <div className="mt-3 flex gap-2">
                     <CopyButton
-                      text={getOutreachMessagePrompt(lead)}
+                      text={getPrompt('outreachMessage', {
+                        decisionMaker: lead.decisionMaker || 'Decision Maker',
+                        company: lead.company,
+                        industry: lead.industry,
+                        signal: lead.signal,
+                        technicalPivot: lead.technicalPivot || 'N/A',
+                        searchIntent: lead.searchIntent || 'N/A',
+                        auditUrl: lead.auditUrl || '[audit not yet published]',
+                        articleUrl: lead.articleUrl || '[article not yet published]',
+                        comparisonUrl: lead.comparisonUrl || '[comparison not yet published]',
+                      })}
                       label="Copy Message Prompt"
                       aiTarget="claude"
                       className="!text-xs !px-3 !py-1.5"

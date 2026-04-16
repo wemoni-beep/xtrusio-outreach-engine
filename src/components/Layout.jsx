@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Users, Search, FileText, Send, Download, Upload } from 'lucide-react';
+import { LayoutDashboard, Users, Search, FileText, Send, Download, Upload, Sparkles } from 'lucide-react';
 import { exportData, importData } from '../store/leadStore';
 import { useRef } from 'react';
 
@@ -7,8 +7,9 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/generate', icon: Users, label: 'Generate Leads' },
   { to: '/enrich', icon: Search, label: 'Enrich' },
-  { to: '/articles', icon: FileText, label: 'Articles' },
+  { to: '/content', icon: FileText, label: 'Content Factory' },
   { to: '/outreach', icon: Send, label: 'Outreach' },
+  { to: '/prompts', icon: Sparkles, label: 'Prompts' },
 ];
 
 export default function Layout({ onDataChange }) {

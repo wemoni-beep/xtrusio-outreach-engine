@@ -204,41 +204,96 @@ export function parseLeadsFromText(text) {
 }
 
 export function parseEnrichmentFromText(text, existingLeads) {
-  // Parse enrichment data (LinkedIn URLs, emails) and merge with existing leads
-  const lines = text.trim().split('\n');
+  // Parse Grok enrichment data in 13-column format and merge with existing leads
+  // Columns: S no. | Company URL | Company Name | Revenue | Founder Name | Founder LinkedIn Link |
+  //          LinkedIn Email | Email | Email Activity | Report | Follow Up | About Company | Source
+
+  // Step 1: Strip code block fences
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^```(?:markdown|md|text)?\s*\n?/i, '');
+  cleaned = cleaned.replace(/\n?```\s*$/i, '');
+  cleaned = cleaned.trim();
+
+  const lines = cleaned.split('\n');
   const enrichments = [];
 
   for (const line of lines) {
-    if (line.startsWith('|') && line.includes('---')) continue;
-    if (line.startsWith('| #') || line.startsWith('| **#')) continue;
+    const trimmed = line.trim();
+    if (!trimmed || (trimmed.match(/\|/g) || []).length < 2) continue;
 
-    if (line.startsWith('|')) {
-      const cells = line.split('|').filter(c => c.trim()).map(c => c.trim().replace(/\*\*/g, ''));
-      if (cells.length >= 3) {
-        enrichments.push({
-          company: cells[1] || cells[0] || '',
-          decisionMaker: cells[2] || '',
-          linkedinUrl: cells[3] || '',
-          email: cells[4] || '',
-          personalLinkedin: cells[5] || '',
-        });
-      }
-    }
+    // Skip separator lines
+    const withoutPipes = trimmed.replace(/\|/g, '').trim();
+    if (/^[-:\s]+$/.test(withoutPipes)) continue;
+
+    // Skip header rows
+    const lower = trimmed.toLowerCase().replace(/\*\*/g, '');
+    if (
+      lower.includes('s no') || lower.includes('company url') ||
+      lower.includes('company name') || lower.includes('founder name') ||
+      lower.includes('linkedin link') || lower.includes('email activity') ||
+      lower.includes('about company')
+    ) continue;
+
+    const cells = trimmed.split('|')
+      .map(c => c.trim().replace(/\*\*/g, '').replace(/^\*|\*$/g, '').trim())
+      .filter(c => c !== '');
+
+    if (cells.length < 5) continue;
+
+    // Map to 13-column Grok format:
+    // 0: S no, 1: Company URL, 2: Company Name, 3: Revenue, 4: Founder Name,
+    // 5: Founder LinkedIn Link, 6: LinkedIn Email, 7: Email, 8: Email Activity,
+    // 9: Report, 10: Follow Up, 11: About Company, 12: Source
+    enrichments.push({
+      companyUrl: cells[1] || '',
+      companyName: cells[2] || '',
+      revenue: cells[3] || '',
+      founderName: cells[4] || '',
+      linkedinUrl: cells[5] || '',
+      linkedinEmail: cells[6] || '',
+      email: cells[7] || '',
+      emailActivity: cells[8] || '',
+      report: cells[9] || '',
+      followUp: cells[10] || '',
+      aboutCompany: cells[11] || '',
+      source: cells[12] || '',
+    });
   }
 
-  // Match enrichments to leads by company name
+  if (enrichments.length === 0) return existingLeads;
+
+  // Match enrichments to leads by company name (fuzzy match)
   const updatedLeads = existingLeads.map(lead => {
-    const match = enrichments.find(e =>
-      lead.company.toLowerCase().includes(e.company.toLowerCase()) ||
-      e.company.toLowerCase().includes(lead.company.toLowerCase())
-    );
-    if (match) {
+    const leadName = lead.company.toLowerCase().trim();
+
+    // Find all enrichment rows for this company
+    const matches = enrichments.filter(e => {
+      const eName = e.companyName.toLowerCase().trim();
+      return leadName.includes(eName) || eName.includes(leadName) ||
+        leadName.split(' ')[0] === eName.split(' ')[0]; // Match first word
+    });
+
+    if (matches.length > 0) {
+      // Use the first match (usually CEO/Founder) for primary fields
+      const primary = matches[0];
+      // Collect all LinkedIn URLs and emails from all people found
+      const allPeople = matches.map(m => ({
+        name: m.founderName,
+        linkedin: m.linkedinUrl,
+        email: m.email || m.linkedinEmail,
+      })).filter(p => p.name);
+
       return {
         ...lead,
-        linkedinUrl: match.linkedinUrl || lead.linkedinUrl,
-        email: match.email || lead.email,
-        personalLinkedin: match.personalLinkedin || lead.personalLinkedin,
-        decisionMaker: match.decisionMaker || lead.decisionMaker,
+        linkedinUrl: primary.linkedinUrl || lead.linkedinUrl,
+        email: primary.email || primary.linkedinEmail || lead.email,
+        decisionMaker: primary.founderName || lead.decisionMaker,
+        personalLinkedin: primary.linkedinUrl || lead.personalLinkedin,
+        companyUrl: primary.companyUrl || lead.companyUrl || '',
+        revenue: primary.revenue || lead.revenue || '',
+        aboutCompany: primary.aboutCompany || lead.aboutCompany || '',
+        // Store all enriched people for outreach
+        enrichedPeople: allPeople.length > 0 ? allPeople : (lead.enrichedPeople || []),
       };
     }
     return lead;

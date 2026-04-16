@@ -4,7 +4,7 @@ import CopyButton from '../components/CopyButton';
 import PasteArea from '../components/PasteArea';
 import LeadTable from '../components/LeadTable';
 import StageIndicator from '../components/StageIndicator';
-import { LEAD_GEN_PROMPT } from '../prompts/leadGenPrompt';
+import { getPrompt } from '../store/promptStore';
 import { parseLeadsFromText } from '../store/leadStore';
 
 export default function GenerateLeads({ campaign, onUpdateCampaign }) {
@@ -57,7 +57,7 @@ export default function GenerateLeads({ campaign, onUpdateCampaign }) {
             <p className="text-sm text-text-muted mb-4">
               Click below to copy the prompt, then paste it into <strong>Gemini</strong> to find recently funded companies.
             </p>
-            <CopyButton text={LEAD_GEN_PROMPT} label="Copy Lead Gen Prompt" aiTarget="gemini" />
+            <CopyButton text={getPrompt('leadGen')} label="Copy Lead Gen Prompt" aiTarget="gemini" />
           </div>
         </div>
       </div>

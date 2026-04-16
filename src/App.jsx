@@ -4,8 +4,9 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import GenerateLeads from './pages/GenerateLeads';
 import EnrichLeads from './pages/EnrichLeads';
-import Articles from './pages/Articles';
+import ContentFactory from './pages/ContentFactory';
 import Outreach from './pages/Outreach';
+import Prompts from './pages/Prompts';
 import { loadData, saveData, createCampaign, updateCampaign, deleteCampaign } from './store/leadStore';
 
 export default function App() {
@@ -74,9 +75,9 @@ export default function App() {
             }
           />
           <Route
-            path="/articles"
+            path="/content"
             element={
-              <Articles
+              <ContentFactory
                 campaign={currentCampaign}
                 onUpdateCampaign={handleUpdateCampaign}
               />
@@ -91,6 +92,7 @@ export default function App() {
               />
             }
           />
+          <Route path="/prompts" element={<Prompts />} />
         </Route>
       </Routes>
     </BrowserRouter>

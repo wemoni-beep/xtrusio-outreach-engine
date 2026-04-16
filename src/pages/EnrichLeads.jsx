@@ -4,7 +4,7 @@ import CopyButton from '../components/CopyButton';
 import PasteArea from '../components/PasteArea';
 import LeadTable from '../components/LeadTable';
 import StageIndicator from '../components/StageIndicator';
-import { getEnrichmentPrompt } from '../prompts/leadGenPrompt';
+import { getPrompt } from '../store/promptStore';
 import { parseEnrichmentFromText } from '../store/leadStore';
 
 export default function EnrichLeads({ campaign, onUpdateCampaign }) {
@@ -32,7 +32,8 @@ export default function EnrichLeads({ campaign, onUpdateCampaign }) {
     );
   }
 
-  const enrichmentPrompt = getEnrichmentPrompt(campaign.leads);
+  const companyList = campaign.leads.map(l => l.company).filter(Boolean).join('\n');
+  const enrichmentPrompt = getPrompt('enrichment', { companyList });
 
   const handlePasteEnrichment = (text) => {
     const updatedLeads = parseEnrichmentFromText(text, campaign.leads);

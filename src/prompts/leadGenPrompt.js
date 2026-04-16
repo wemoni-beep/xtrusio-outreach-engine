@@ -34,40 +34,37 @@ Provide a single Markdown table with the following 10 columns:
 * **CRITICAL: Output the table inside a markdown code block (triple backticks). Use standard pipe-delimited markdown table format with | separators. Do NOT use any other table format. Each row must be on a single line.**`;
 
 export function getEnrichmentPrompt(leads) {
-  const leadList = leads.map((l, i) =>
-    `${i + 1}. ${l.decisionMaker || 'Decision Maker'} at ${l.company} (${l.industry}) — ${l.signal || 'Recently funded'}`
-  ).join('\n');
+  const companyUrls = leads.map((l) => {
+    // Try to construct a URL from company name if we don't have one
+    const name = l.company || '';
+    return name;
+  }).filter(Boolean);
 
-  return `You are an elite B2B Lead Generation Researcher and Technical SEO Strategist. Your goal is to identify high-value sales targets from the last 48 hours of global funding news and immediately construct a "Mirror Pitch" SEO framework for each.
+  const companyList = companyUrls.join('\n');
 
-**Step 1: The Live Search Phase (Strict Filtering)**
-Identify companies that meet these exact criteria. Do not hallucinate; if only 5 exist, provide 5.
-1. **Announcement Window:** Within the strictly preceding 24-48 hours.
-2. **Funding Amount:** $20M-$50M USD (Series A or B preferred).
-3. **Company Size:** 50 to 1,000 employees.
-4. **Industries:** B2B SaaS, FinTech, HealthTech, CyberSecurity, AI Infra, or Hard Tech.
-5. **Sources:** TechCrunch, PR Newswire, VentureBeat, and official VC portfolios.
+  return `You are a B2B lead research assistant. Your ONLY job is to research companies from their URL and output data in a strict markdown table format. NEVER add any extra text, explanations, greetings, or notes outside the table.
 
-**Step 2: The "Mirror Pitch" SEO Logic**
-For every lead identified, you must engineer a "Mirror Pitch." This is a strategy where we rank for a problem the lead solves, positioning ourselves as the authority that recommends them (while capturing the lead's potential customers).
+Fixed table headers (exact order, no changes):
+| S no. | Company URL | Company Name | Revenue | Founder Name | Founder LinkedIn Link | LinkedIn Email | Email | Email Activity | Report | Follow Up | About Company | Source |
 
-**Step 3: Find LinkedIn Profiles & Contact Info**
-For the following people from my lead pipeline, find their actual LinkedIn profile URLs and professional email addresses using your web search capabilities:
+Rules:
+- Input will always be one or more company URLs (one per message or listed).
+- For each company:
+  - Research: Company name, latest revenue (or "Not publicly available" if private/small), short 1-line description of what the company does (put in About Company).
+  - Find up to 4 key people (separate row for each): Prioritize CEO/Founder, then marketing roles (CMO, Head of Marketing, Marketing Director/Manager, etc.). Goal: reach CEO and marketing team.
+  - For each person row: Put their role + name in "Founder Name" column (e.g., "John Doe (CEO)").
+  - Find verified LinkedIn profile URL (put in Founder LinkedIn Link). If none, use company page or leave blank.
+  - Find real email if possible, else intelligently guess (common patterns like first.last@domain.com).
+  - Repeat company URL, name, revenue, and about company in every row for that company.
+  - Fill Source with where info came from (e.g., website, LinkedIn, Crunchbase).
+  - Leave LinkedIn Email, Email Activity, Report, Follow Up blank unless you have real data.
+- Sequential S no. starting from 1.
+- Output ONLY the markdown table, nothing else.
+- Use your search/tools to get accurate, up-to-date info.
 
-${leadList}
+Here are the companies to research:
 
-**Step 4: Output Generation (Unified Table)**
-Present results in a Markdown table with these columns:
-| # | Company | Decision Maker | LinkedIn URL | Email | LinkedIn Headline |
-
-**Formatting & Tone:**
-* Provide precise, definitive answers.
-* Zero fluff.
-* No introductory filler.
-* Only provide URLs you are confident are correct.
-* If you cannot find a LinkedIn profile, write "Not Found".
-* If you cannot find an email, write "Not Found".
-* Do not guess or hallucinate URLs.`;
+${companyList}`;
 }
 
 export function getArticlePrompt(lead) {
