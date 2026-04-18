@@ -8,6 +8,7 @@ import ContentFactory from './pages/ContentFactory';
 import Outreach from './pages/Outreach';
 import Prompts from './pages/Prompts';
 import PublishSettings from './pages/PublishSettings';
+import NewsRadar from './pages/NewsRadar';
 import { loadData, saveData, createCampaign, updateCampaign, deleteCampaign } from './store/leadStore';
 
 export default function App() {
@@ -93,6 +94,7 @@ export default function App() {
               />
             }
           />
+          <Route path="/news-radar" element={<NewsRadar />} />
           <Route path="/prompts" element={<Prompts />} />
           <Route path="/publish-settings" element={<PublishSettings />} />
         </Route>

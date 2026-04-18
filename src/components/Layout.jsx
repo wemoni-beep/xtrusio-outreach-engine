@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Users, Search, FileText, Send, Download, Upload, Sparkles, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Search, FileText, Send, Download, Upload, Sparkles, Settings, Newspaper } from 'lucide-react';
 import { exportData, importData } from '../store/leadStore';
 import { useRef } from 'react';
 
@@ -9,6 +9,7 @@ const navItems = [
   { to: '/enrich', icon: Search, label: 'Enrich' },
   { to: '/content', icon: FileText, label: 'Content Factory' },
   { to: '/outreach', icon: Send, label: 'Outreach' },
+  { to: '/news-radar', icon: Newspaper, label: 'News Radar' },
   { to: '/prompts', icon: Sparkles, label: 'Prompts' },
   { to: '/publish-settings', icon: Settings, label: 'Publish Settings' },
 ];

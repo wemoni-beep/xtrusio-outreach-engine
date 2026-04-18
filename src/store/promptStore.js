@@ -260,6 +260,116 @@ Include a decision tree or scorecard the reader can use to pick the right tool.
 **Output:** Just the complete HTML code, nothing else.`,
   },
 
+  newsRadar: {
+    id: 'newsRadar',
+    title: 'News Radar (Daily Discovery)',
+    target: 'gemini',
+    description: 'Run each morning in Gemini (with Deep Research / grounding enabled) to find 1–3 high-volume events from the last 24h in Bahrain, UAE, and Saudi Arabia worth writing a fast-publish blog on.',
+    placeholders: ['{{today}}'],
+    defaultPrompt: `**Role:**
+You are a real-time news analyst and SEO opportunity scout for a B2B tech operator based in Bahrain. Your job is to scan the last 24 hours of news and identify 1–3 events that are (a) high-volume/trending and (b) rankable opportunities for a fast-published, opinion-led blog.
+
+**Date context:** {{today}}
+
+**Regional priority (in order):** Bahrain → UAE → Saudi Arabia → wider GCC → global tech with GCC implications.
+
+**Audience profile:**
+- Reader: CTOs, CMOs, Heads of Engineering, founders, growth/marketing leaders.
+- Distribution edge: fast publishing, strong opinion, local proximity (Bahrain/GCC).
+- Core framing we like: "Mirror Pitch / Underdog vs Champion" — we critique large incumbents (e.g., JP Morgan, AWS, Salesforce) by name so smaller regional peers (local banks, boutique firms, mid-market SaaS) read the post and recognize themselves as the underdog we are implicitly championing.
+
+**Sources to scan (use search/grounding — do not hallucinate):**
+- Reddit: r/devops, r/selfhosted, r/SaaS, r/startups, r/bahrain, r/dubai, r/saudiarabia, r/MachineLearning
+- Google News for: gulf-news.com, thenationalnews.com, arabianbusiness.com, gdnonline.com, khaleejtimes.com, zawya.com, wamda.com
+- G2 / Capterra / Product Hunt movement (new category leaders, big drops)
+- Official company blogs, VC announcements, regulatory filings (SAMA, CBB, CBUAE, DIFC, ADGM)
+- Global tech outlets: TechCrunch, The Information, Rest of World
+
+**Selection criteria (event qualifies ONLY if ALL are true):**
+1. Broke or trended within the last 24 hours.
+2. Has high search volume potential — either by named entity (company/person/product) OR by broad query (e.g., "UAE AI regulation 2026", "CBB open banking rules").
+3. We have an angle we can take: underdog-vs-champion critique, contrarian explainer, "what this means for GCC operators", technical deep-dive.
+4. Rankable within 24–72h — low-to-medium keyword difficulty, or breaking news where speed wins.
+5. Relevant to B2B tech / SaaS / fintech / regulation / AI / cloud / security / marketing / devops.
+
+**Output (STRICT markdown table, inside a code block):**
+
+| # | Event Headline | Date / Source | Event Type | High-Volume Signal | Target Angle | Underdog/Champion Play | Target Keyword | Suggested Article Title | Quality Score (1-10) |
+
+Rules:
+- Provide 1, 2, or 3 rows based on TRUE opportunity. Quality over quantity. If nothing today crosses the bar, return exactly 1 row with Quality Score ≤ 4 and prefix the headline with "[LOW DAY]".
+- Date / Source: full source URL + publish time in GMT+3.
+- Event Type: Funding / Launch / Regulation / Acquisition / Outage / Leadership / Controversy / Market Move / Partnership / Other.
+- High-Volume Signal: concretely why people will search this in the next 48h (e.g., "CBB just announced open banking framework — every GCC fintech founder will search this tomorrow").
+- Target Angle: the opinionated take we will write.
+- Underdog/Champion Play: name the big incumbent we will critique AND the smaller peer(s) who will identify with our piece.
+- Target Keyword: 3–7 word BOFU-ish query someone would type.
+- Suggested Article Title: punchy, under 70 chars, no clickbait.
+- Quality Score rubric: 10 = instant publish / guaranteed pickup · 7–9 = strong · 5–6 = fine on a slow day · <5 = skip.
+- Output ONLY the table inside a markdown code block. No preamble, no closing summary, nothing else.`,
+  },
+
+  newsArticle: {
+    id: 'newsArticle',
+    title: 'News Article (Fast-Publish Blog)',
+    target: 'gemini',
+    description: 'Run in Gemini to write a 900–1,300 word fast-publish opinion blog for a specific news event. Designed to rank within 24–72h while the news is hot.',
+    placeholders: ['{{headline}}', '{{eventType}}', '{{dateSource}}', '{{angle}}', '{{underdogChampion}}', '{{keyword}}', '{{title}}'],
+    defaultPrompt: `**Role:**
+You are a senior technical writer + editorial strategist. Your job is to write a fast-publish, opinion-led blog post that ranks within 24–72 hours while the news is hot.
+
+**Event context:**
+- Headline: {{headline}}
+- Event type: {{eventType}}
+- Source / date: {{dateSource}}
+- Editorial angle: {{angle}}
+- Underdog/Champion play: {{underdogChampion}}
+- Primary keyword: {{keyword}}
+- Working title: {{title}}
+
+**Article rules:**
+1. **Length:** 900–1,300 words. Dense. Zero fluff.
+2. **Structure (in this exact order):**
+   - **TL;DR box (at the top, 3 bullets).** Each bullet should carry its own opinion.
+   - **Hook (80–120 words):** Open with the most surprising angle. Not "In today's digital landscape." Not "It is important to note."
+   - **What actually happened (~150 words):** Neutral factual summary with date, dollar amount, named people, and source link.
+   - **The real story (~400–500 words):** The opinionated take — what the industry is missing. Use Underdog/Champion framing. Critique the incumbent by name where appropriate. Give smaller peers a mirror.
+   - **What this means for GCC operators (~200–300 words):** Localize for Bahrain / UAE / Saudi. Concrete implications for CTOs, founders, marketers. Name specific regulatory bodies (CBB, SAMA, CBUAE, DIFC, ADGM) where relevant.
+   - **Practical checklist (~100–150 words):** 4–6 actionable bullets a reader implements this week.
+3. **Tone:** Sharp, confident, mildly contrarian. Write as the senior in the room calling out what everyone else missed. No hedging.
+4. **SEO:** Work the primary keyword naturally into H2s and first paragraph. Include 2–3 related long-tail queries as secondary H2s. Do not stuff.
+5. **Attribution:** Link out to the primary source in paragraph 2. Never link to competitors.
+6. **No AI tells.** No "In summary." No "It is important to note." Write like a human senior editor with 15 years of experience.
+
+**Output:** Full article in markdown, starting with # {{title}} (or an improved version if you can write a sharper title — put the final title on the first line). Nothing before or after the article.`,
+  },
+
+  newsImage: {
+    id: 'newsImage',
+    title: 'News Article — Image Prompt',
+    target: 'gemini',
+    description: 'PLACEHOLDER — edit to match your blog\'s visual identity. Generates an image prompt you copy into Imagen / Gemini image / Midjourney, download the image, and upload manually to your blog.',
+    placeholders: ['{{title}}', '{{angle}}', '{{eventType}}'],
+    defaultPrompt: `[PLACEHOLDER — edit this prompt in the Prompts page to match your blog's visual style.]
+
+Generate a 1600x900 editorial hero image for a fast-publish opinion blog post.
+
+Context:
+- Article title: {{title}}
+- Editorial angle: {{angle}}
+- Event type: {{eventType}}
+
+Style requirements:
+- Editorial / magazine cover aesthetic — not clickbaity, not stock-photo generic.
+- Dark background preferred, single restrained accent colour (violet #8b5cf6 or deep teal).
+- NO embedded text, NO logos, NO watermarks.
+- Choose cinematic photoreal OR flat vector — whichever better suits the event type.
+- Aspect ratio: 16:9, print-safe.
+- Audience: B2B CTOs, founders, senior operators. Serious, not gimmicky.
+
+Output: image only.`,
+  },
+
   outreachMessage: {
     id: 'outreachMessage',
     title: 'LinkedIn Outreach Message Prompt',
