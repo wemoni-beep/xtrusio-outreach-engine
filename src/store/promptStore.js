@@ -63,14 +63,22 @@ Rules:
   - Research: Company name, latest revenue (or "Not publicly available" if private/small), short 1-line description of what the company does (put in About Company).
   - Find up to 4 key people (separate row for each): Prioritize CEO/Founder, then marketing roles (CMO, Head of Marketing, Marketing Director/Manager, etc.). Goal: reach CEO and marketing team.
   - For each person row: Put their role + name in "Founder Name" column (e.g., "John Doe (CEO)").
-  - Find verified LinkedIn profile URL (put in Founder LinkedIn Link). If none, use company page or leave blank.
-  - Find real email if possible, else intelligently guess (common patterns like first.last@domain.com).
+  - Find verified LinkedIn profile URL (put in Founder LinkedIn Link).
+  - Find real email if possible, else intelligently guess (common patterns like first.last@domain.com). Emails go ONLY in the Email column.
   - Repeat company URL, name, revenue, and about company in every row for that company.
   - Fill Source with where info came from (e.g., website, LinkedIn, Crunchbase).
   - Leave LinkedIn Email, Email Activity, Report, Follow Up blank unless you have real data.
 - Sequential S no. starting from 1.
 - Output ONLY the markdown table, nothing else.
 - Use your search/tools to get accurate, up-to-date info.
+
+**STRICT URL RULES (read carefully — violating these breaks the downstream app):**
+- Every value in "Company URL" MUST start with "https://" and point to the company's real website.
+- Every value in "Founder LinkedIn Link" MUST start with "https://www.linkedin.com/" OR be exactly the literal string: Not Found
+- NEVER put an email address, phone number, company name, or any other text in a URL column.
+- NEVER fabricate or guess URLs. If a LinkedIn profile cannot be verified, write exactly: Not Found
+- NEVER leave a URL column empty — either a valid https:// URL or the literal "Not Found".
+- Emails belong ONLY in the Email column. If no email is known, write exactly: Not Found
 
 Here are the companies to research:
 

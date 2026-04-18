@@ -193,7 +193,7 @@ export default function Outreach({ campaign, onUpdateCampaign }) {
                 <p className="text-sm text-text-muted mb-1">
                   <strong>{lead.decisionMaker}</strong> &middot; {lead.signal}
                 </p>
-                {lead.linkedinUrl && lead.linkedinUrl !== 'Not Found' && (
+                {lead.linkedinUrl && /^https?:\/\//i.test(lead.linkedinUrl) && (
                   <a href={lead.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1 mb-2">
                     <ExternalLink size={12} /> Open LinkedIn Profile
                   </a>

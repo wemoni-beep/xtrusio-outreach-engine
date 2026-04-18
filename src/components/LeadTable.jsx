@@ -81,7 +81,7 @@ export default function LeadTable({ leads, onStatusChange, onMessageCopy, showOu
               </td>
               {leads.some(l => l.linkedinUrl) && (
                 <td className="py-3 px-3">
-                  {lead.linkedinUrl && lead.linkedinUrl !== 'Not Found' ? (
+                  {lead.linkedinUrl && /^https?:\/\//i.test(lead.linkedinUrl) ? (
                     <a href={lead.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1">
                       <ExternalLink size={14} /> Profile
                     </a>
