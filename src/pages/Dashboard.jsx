@@ -27,7 +27,7 @@ export default function Dashboard({ campaigns, onCreateCampaign, onDeleteCampaig
 
   const handleSelect = (campaign) => {
     onSelectCampaign(campaign.id);
-    const routes = { generate: '/generate', enrich: '/enrich', articles: '/articles', outreach: '/outreach', done: '/outreach' };
+    const routes = { generate: '/generate', enrich: '/enrich', articles: '/content', outreach: '/outreach', done: '/outreach' };
     navigate(routes[campaign.stage] || '/generate');
   };
 
