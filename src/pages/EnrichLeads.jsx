@@ -46,7 +46,7 @@ export default function EnrichLeads({ campaign, onUpdateCampaign }) {
 
   const handleAdvance = () => {
     onUpdateCampaign(campaign.id, { stage: 'articles' });
-    navigate('/articles');
+    navigate('/content');
   };
 
   const enrichedCount = campaign.leads.filter(l => l.linkedinUrl).length;
