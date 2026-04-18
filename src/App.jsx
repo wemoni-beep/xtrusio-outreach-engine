@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState, useCallback } from 'react';
+import AuthGate from './components/AuthGate';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import GenerateLeads from './pages/GenerateLeads';
@@ -44,6 +45,7 @@ export default function App() {
   };
 
   return (
+    <AuthGate>
     <BrowserRouter basename="/xtrusio-outreach-engine">
       <Routes>
         <Route element={<Layout onDataChange={refresh} />}>
@@ -100,5 +102,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </AuthGate>
   );
 }
