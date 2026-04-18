@@ -382,38 +382,46 @@ Output: image only.`,
     id: 'outreachMessage',
     title: 'LinkedIn Outreach Message Prompt',
     target: 'claude',
-    description: 'Run in Claude to generate a personalized LinkedIn connection message for a decision maker. The message references the 3 pieces of content already published for their company.',
+    description: 'Run in Claude to generate a LinkedIn connection + follow-up DM. REQUIRES at least one published asset (audit / article / comparison) — the message hook is the asset we already built specifically for this company.',
     placeholders: ['{{decisionMaker}}', '{{company}}', '{{industry}}', '{{signal}}', '{{technicalPivot}}', '{{searchIntent}}', '{{auditUrl}}', '{{articleUrl}}', '{{comparisonUrl}}'],
-    defaultPrompt: `Generate a personalized LinkedIn connection request message (max 300 characters) for the following person.
+    defaultPrompt: `You are writing a LinkedIn outreach sequence for a decision maker. Our angle is NOT "we have a product to sell." It is: **"we already did research work specifically on your company and here is the report."** The hook is the report itself, not a pain-point observation.
 
 **Target Person:**
 - Name: {{decisionMaker}}
 - Company: {{company}}
 - Industry: {{industry}}
 - Recent signal: {{signal}}
-- Their technical pain: {{technicalPivot}}
-- Their buyer pain: {{searchIntent}}
+- Their technical angle: {{technicalPivot}}
+- Their buyer context: {{searchIntent}}
 
-**What we've already published about them (link these in follow-up DM, not the connect request):**
-- Audit: {{auditUrl}}
+**Assets we have already built about them (at least one MUST be a real https:// URL):**
+- GEO/AEO Audit (their site vs competitors, how they rank in AI answers): {{auditUrl}}
 - Industry guide article: {{articleUrl}}
-- Comparison analysis: {{comparisonUrl}}
+- Competitor comparison analysis: {{comparisonUrl}}
 
-**Message Rules:**
-1. Lead with THEIR specific pain point, not our pitch
-2. Reference the recent signal (funding, new hire, etc.) to show this isn't a mass blast
-3. Create curiosity — don't pitch directly in the connect request
-4. Sound human, not like a bot
-5. Keep under 300 characters
+**HARD RULE — READ THIS FIRST:**
+If all three URLs above are placeholders (contain "not yet published", "N/A", or do not start with https://), output EXACTLY this single line and nothing else:
+\`BLOCKED: No asset published yet — generate audit/article/comparison first.\`
 
-**Also generate a 2nd "follow-up DM" (max 600 characters) that:**
-- Acknowledges they accepted the connect
-- Shares one of the three published URLs (pick the most relevant: audit if the pain is general, article if it's a specific question, comparison if they have strong competitors)
-- Ends with a soft ask for 15 minutes to walk them through the findings
+Otherwise, pick the single most relevant published asset (prefer the audit if available — it's the most specific and concrete) and use its URL as the hook.
 
-**Output format:**
-Connect message: [text]
-Follow-up DM: [text]`,
+**Connect message (≤ 300 characters):**
+- Do NOT say things like "I've been mapping" or "I've been thinking about" or "curious how teams solve X". Those sound generic.
+- DO say: we ran an actual analysis on {{company}} specifically (a GEO/AEO audit, a vs-competitors benchmark, etc. — match the asset type).
+- Tie it to the recent signal briefly (not as the main hook).
+- End with a low-friction ask: "happy to share" or "want me to send it over?" — not a pitch.
+- Sound like a human writing to a founder, not a sales rep.
+- No buzzword stacking.
+
+**Follow-up DM (≤ 600 characters), to send AFTER they accept:**
+- Thank them in one short line.
+- One sentence on what the asset actually contains (one concrete finding is better than a list of features — e.g. "Your domain ranks for 3 of the 12 AI-answer prompts your top 2 competitors show up for").
+- Paste the chosen URL (the exact https:// URL from above, nothing appended, nothing modified).
+- End with: "want 15 min this week to walk through it?" or equivalent soft ask.
+
+**Output format — exactly two lines, nothing else:**
+Connect message: <text>
+Follow-up DM: <text>`,
   },
 };
 

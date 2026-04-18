@@ -266,30 +266,42 @@ export default function Outreach({ campaign, onUpdateCampaign }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-3 flex gap-2">
-                    <CopyButton
-                      text={getPrompt('outreachMessage', {
-                        decisionMaker: lead.decisionMaker || 'Decision Maker',
-                        company: lead.company,
-                        industry: lead.industry,
-                        signal: lead.signal,
-                        technicalPivot: lead.technicalPivot || 'N/A',
-                        searchIntent: lead.searchIntent || 'N/A',
-                        auditUrl: lead.auditUrl || '[audit not yet published]',
-                        articleUrl: lead.articleUrl || '[article not yet published]',
-                        comparisonUrl: lead.comparisonUrl || '[comparison not yet published]',
-                      })}
-                      label="Copy Message Prompt"
-                      aiTarget="claude"
-                      className="!text-xs !px-3 !py-1.5"
-                    />
-                    <button
-                      onClick={() => { setShowMessageInput(lead.id); setMessageText(''); }}
-                      className="text-xs px-3 py-1.5 rounded-lg font-medium bg-gray-100 text-text-muted hover:bg-gray-200 transition-colors"
-                    >
-                      Paste Message
-                    </button>
-                  </div>
+                  (() => {
+                    const hasAsset = [lead.auditUrl, lead.articleUrl, lead.comparisonUrl].some(u => u && /^https?:\/\//i.test(u));
+                    if (!hasAsset) {
+                      return (
+                        <div className="mt-3 text-xs text-text-muted bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                          Publish an audit, article, or comparison for this lead first — the message hook is the report itself.
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="mt-3 flex gap-2">
+                        <CopyButton
+                          text={getPrompt('outreachMessage', {
+                            decisionMaker: lead.decisionMaker || 'Decision Maker',
+                            company: lead.company,
+                            industry: lead.industry,
+                            signal: lead.signal,
+                            technicalPivot: lead.technicalPivot || 'N/A',
+                            searchIntent: lead.searchIntent || 'N/A',
+                            auditUrl: lead.auditUrl || '[audit not yet published]',
+                            articleUrl: lead.articleUrl || '[article not yet published]',
+                            comparisonUrl: lead.comparisonUrl || '[comparison not yet published]',
+                          })}
+                          label="Copy Message Prompt"
+                          aiTarget="claude"
+                          className="!text-xs !px-3 !py-1.5"
+                        />
+                        <button
+                          onClick={() => { setShowMessageInput(lead.id); setMessageText(''); }}
+                          className="text-xs px-3 py-1.5 rounded-lg font-medium bg-gray-100 text-text-muted hover:bg-gray-200 transition-colors"
+                        >
+                          Paste Message
+                        </button>
+                      </div>
+                    );
+                  })()
                 )}
               </div>
 
