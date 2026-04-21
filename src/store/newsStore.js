@@ -2,6 +2,8 @@
 // Independent of campaigns. Follows the same copy-paste pattern as leadStore:
 // user runs prompts externally, pastes results back, app parses and stores.
 
+import { pushToCloud } from '../firebase/cloudSync';
+
 const STORAGE_KEY = 'xtrusio_news_data';
 
 const DEFAULT_DATA = {
@@ -20,6 +22,7 @@ export function loadNewsData() {
 
 export function saveNewsData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  pushToCloud(STORAGE_KEY);
 }
 
 export function updateEvent(id, updates) {

@@ -1,3 +1,5 @@
+import { pushToCloud } from '../firebase/cloudSync';
+
 const STORAGE_KEY = 'xtrusio_outreach_data';
 
 const DEFAULT_DATA = {
@@ -16,6 +18,7 @@ export function loadData() {
 
 export function saveData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  pushToCloud(STORAGE_KEY);
 }
 
 export function createCampaign(name) {

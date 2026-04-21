@@ -1,3 +1,5 @@
+import { pushToCloud } from '../firebase/cloudSync';
+
 // Prompt Library — user-editable prompts stored in localStorage
 // All 6 prompts can be edited in the UI. Placeholders like {{company}} are replaced at copy time.
 
@@ -451,6 +453,7 @@ export function savePrompt(id, promptText) {
     const stored = raw ? JSON.parse(raw) : {};
     stored[id] = { prompt: promptText };
     localStorage.setItem(PROMPT_STORAGE_KEY, JSON.stringify(stored));
+    pushToCloud(PROMPT_STORAGE_KEY);
     return true;
   } catch (e) {
     console.error('Failed to save prompt', e);
@@ -464,6 +467,7 @@ export function resetPrompt(id) {
     const stored = raw ? JSON.parse(raw) : {};
     delete stored[id];
     localStorage.setItem(PROMPT_STORAGE_KEY, JSON.stringify(stored));
+    pushToCloud(PROMPT_STORAGE_KEY);
     return true;
   } catch {
     return false;
@@ -473,6 +477,7 @@ export function resetPrompt(id) {
 export function resetAllPrompts() {
   try {
     localStorage.removeItem(PROMPT_STORAGE_KEY);
+    pushToCloud(PROMPT_STORAGE_KEY);
     return true;
   } catch {
     return false;
